@@ -1,0 +1,6 @@
+* {box-sizing: border-box;}
+
+.playerFrame {
+       width: 800px;
+       height: 550px;
+}
