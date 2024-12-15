@@ -1,8 +1,35 @@
 {
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "babel-loader": "^9.2.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "googleapis": "^144.0.0",
-    "mysql": "^2.18.1"
+    "html-webpack-plugin": "^5.6.3",
+    "mysql": "^2.18.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-middleware": "^7.4.2",
+    "webpack-dev-server": "^5.2.0",
+    "webpack-hot-middleware": "^2.26.1"
+  },
+  "name": "youtube-player",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "react-refresh": "^0.16.0"
   }
 }

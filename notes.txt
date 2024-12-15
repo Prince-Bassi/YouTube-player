@@ -3,5 +3,3 @@
 id     videoId       html     title    
 
 >>> Use the formula 'Delay(min) = 1440 / (10000 / Num of videos)' to get the delay needed to syncronize data with thr YouTube API
-
->>> Make a video Object

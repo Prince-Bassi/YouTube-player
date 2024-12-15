@@ -1,11 +1,17 @@
 require("dotenv").config();
 
-const express = require("express");
-const path = require("path");
+const path = require('path');
+const express = require('express');
 const mysql = require("mysql");
 const { google } = require("googleapis");
-const app = express();
+const webpack = require('webpack');
+const webpackConfig = require('./webpack.config.js');
+const webpackDevMiddleware = require('webpack-dev-middleware');
+const webpackHotMiddleware = require('webpack-hot-middleware');
+
 const PORT = 8080;
+const app = express();
+const compiler = webpack(webpackConfig);
 
 const db = mysql.createConnection({
        host: process.env.DB_HOST,
@@ -19,10 +25,6 @@ const youtube = google.youtube({
        auth: process.env.API_KEY
 });
 
-app.use(express.static(path.join(__dirname, 'ProjectFiles')));
-app.use(express.urlencoded({extended: true}))
-app.use(express.json());
-
 function getYoutubeResponse(part, id) {
        const youtubeResponse = youtube.videos.list({
               part: part,
@@ -32,8 +34,32 @@ function getYoutubeResponse(part, id) {
        return youtubeResponse;
 }
 
-app.get("/", (req, res) => {
-       res.sendFile(path.join(__dirname, 'ProjectFiles/Layouts', 'index.html'));
+async function getVideoFromDB(id) {
+       return new Promise((resolve, reject) => {
+              const query = (typeof id === "number") ? "SELECT * FROM videos WHERE id = ?;" : "SELECT * FROM videos WHERE videoId = ?;";
+              db.query(query, [id], (err, results, fields) => {
+                     if (err) reject(err);
+       
+                     resolve(results);
+              });
+       });
+}
+
+app.use(express.static(path.join(__dirname, 'ProjectFiles')));
+app.use(express.urlencoded({extended: true}))
+app.use(express.json());
+
+app.use(
+       webpackDevMiddleware(compiler, {
+              publicPath: webpackConfig.output.publicPath,
+              stats: { colors: true },
+       })
+);
+
+app.use(webpackHotMiddleware(compiler));
+
+app.get('/', (req, res) => {
+       res.sendFile(path.join(__dirname, 'ProjectFiles', 'index.html'));
 });
 
 app.get("/getAllVideos", (req, res, next) => {
@@ -44,24 +70,28 @@ app.get("/getAllVideos", (req, res, next) => {
        });
 });
 
-app.post("/getVideo", (req, res, next) => {
-       const youtubeResponse = youtube.videos.list({
-              part: "snippet,player,contentDetails",
-              id: req.body,
-       });
-       
-       youtubeResponse.then((data) => {
-              res.status(200).json(data);
-       })
-       .catch(err => next(err));
+app.post("/getVideo", async (req, res, next) => {
+       const results = await getVideoFromDB(req.body.id);
+       res.status(200).json(results);
 });
 
-app.post("/addVideo", (req, res, next) => {
-       const videoId = req.body.id;
+app.post("/addVideo", async (req, res, next) => {
+       const videoId = req.body.videoId;
        const part = "snippet,player";
 
        if (videoId) {
-              getYoutubeResponse(part, videoId).then(data => {
+              const results = await getVideoFromDB(videoId);
+              if (results.length > 0) {
+                     res.status(200).send("Video is already in the database");
+                     return;
+              }
+
+              await getYoutubeResponse(part, videoId).then(data => {
+                     if (!data.data.items.length) {
+                            res.status(200).send("Invalid ID");
+                            return;
+                     } 
+
                      const videoData = data.data.items[0];
                      const params = [videoId, videoData.player.embedHtml, videoData.snippet.title];
                      
