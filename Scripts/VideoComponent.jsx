@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
-import { useVideoManager } from "./hooks/VideoManagerContext.js";
+import useVideoManagerStore from "./hooks/VideoManagerStore.js";
 
-const VideoComponent = () => {
-       const { title, playerHtml, updateVideosData, displayVideo, videosData, deleteVideo } = useVideoManager();
+const VideoComponent = React.memo(() => {
+       const title = useVideoManagerStore((state) => state.title);
+       const playerHtml = useVideoManagerStore((state) => state.playerHtml);
+       const updateVideosData = useVideoManagerStore((state) => state.updateVideosData);
+       const displayVideo = useVideoManagerStore((state) => state.displayVideo);
 
-       console.log(videosData);
        useEffect(() => {
               updateVideosData();
               displayVideo(5);
@@ -17,6 +19,6 @@ const VideoComponent = () => {
                      <div className="channelName"></div>
               </section>
        );
-}
+});
 
 export default VideoComponent;
