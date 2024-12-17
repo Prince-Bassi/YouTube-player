@@ -17,7 +17,8 @@ const db = mysql.createConnection({
        host: process.env.DB_HOST,
        user: process.env.DB_USER,
        password: process.env.DB_PASSWORD,
-       database: process.env.DB_NAME
+       database: process.env.DB_NAME,
+       // connectionLimit: process.env.DB_POOL_LIMIT,
 });
 
 const youtube = google.youtube({
@@ -104,7 +105,22 @@ app.post("/addVideo", async (req, res, next) => {
               .catch(err => next(err));
        }
        else {
-              next(new Error("Video ID not Found"))
+              next(new Error("Video ID not Found"));
+       }
+});
+
+app.delete("/deleteVideo", (req, res, next) => {
+       const id = req.body.id;
+
+       if (id) {
+              db.query("DELETE FROM videos WHERE id = ?", [id], (err, results) => {
+                     if (err) next(err);
+
+                     res.status(200).send(`Deleted Video ${id}`);
+              });
+       }
+       else {
+              next(new Error("ID not Found"));
        }
 });
 
