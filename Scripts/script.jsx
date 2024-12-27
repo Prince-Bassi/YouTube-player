@@ -1,19 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import VideoComponent from "./VideoComponent.jsx";
-import AddForm from "./AddForm.jsx";
-import VideoList from "./VideoList.jsx";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./Home.jsx";
 
 function App() {
        const AppHtml = (
-              <>
-                     <header>
-                            <h2>Cheap YouTube</h2>
-                            <AddForm />
-                     </header>
-                     <VideoComponent />
-                     <VideoList />
-              </>
+              <Router>
+                     <Routes>
+                            <Route path="/" element={<Home />} />
+                     </Routes>
+              </Router>
        );
        return AppHtml;
 }

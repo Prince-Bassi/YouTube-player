@@ -9,7 +9,7 @@ const webpackConfig = require('./webpack.config.js');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 
-const PORT = 8080;
+const PORT = +process.env.PORT;
 const app = express();
 const compiler = webpack(webpackConfig);
 
@@ -20,6 +20,13 @@ const db = mysql.createConnection({
        database: process.env.DB_NAME,
        // connectionLimit: process.env.DB_POOL_LIMIT,
 });
+
+// query = "DELETE FROM playlist_videos;";
+
+// db.query(query, (err, result) => {
+//        if (err) console.error(err);
+//        console.log(result);
+// });
 
 const youtube = google.youtube({
        version: 'v3',
@@ -58,10 +65,6 @@ app.use(
 );
 
 app.use(webpackHotMiddleware(compiler));
-
-app.get('/', (req, res) => {
-       res.sendFile(path.join(__dirname, 'ProjectFiles', 'index.html'));
-});
 
 app.get("/getAllVideos", (req, res, next) => {
        db.query("SELECT * FROM videos;", (err, results, fields) => {
@@ -122,6 +125,99 @@ app.delete("/deleteVideo", (req, res, next) => {
        else {
               next(new Error("ID not Found"));
        }
+});
+
+app.post("/getPlaylistData", async (req, res, next) => {
+       const reqType = req.body.reqType;
+       let query;
+       const params = [];
+
+       if (!reqType) {
+              res.status(200).send("Request type not provided");
+              return;
+       }
+
+       switch (reqType) {
+              case "playlists":
+                     query = "SELECT * FROM playlists;";
+                     break;
+              case "playlist_videos":
+                     query = "SELECT * FROM playlist_videos;";
+                     break;
+              case "fullPlaylistsData":
+                     query = "SELECT p.id AS playlistId, p.name as playlistName, JSON_ARRAYAGG(v.id) AS videos FROM playlists p LEFT JOIN playlist_videos pv ON p.id = pv.playlistId LEFT JOIN videos v ON pv.videoId = v.id GROUP BY p.id";
+                     break;
+              default:
+                     next(new Error("Invaid request type"));
+                     return;
+       }
+
+       db.query(query, params, (err, results) => {
+              if (err) next(err);
+
+              res.status(200).json(results);
+       });
+});
+
+app.post("/addPlaylist", (req, res, next) => {
+       db.query("INSERT INTO playlists (name) VALUES (?);", [req.body.playlistName], (err, results) => {
+              if (err) next(err);
+
+              res.status(200).json({playlistId: results.insertId, message: "Playlist Added"});
+       });
+});
+
+app.delete("/deletePlaylist", (req, res, next) => {
+       db.query("DELETE FROM playlists WHERE id = ?;", [req.body.playlistId], (err, results) => {
+              if (err) next(err);
+
+              res.status(200).send("Playlist removed");
+       });
+});
+
+app.patch("/updatePlaylist", async (req, res, next) => {
+       try {
+              const data = req.body;
+
+              const addVideoObj = data["add"] || {videoIds: []};
+              const addPromises = [];
+              let playlistId = addVideoObj.playlistId || -1;
+
+              for (const videoId of addVideoObj.videoIds) {
+                     addPromises.push(new Promise((resolve, reject) => {
+                            db.query("INSERT INTO playlist_videos (playlistId, videoId) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM playlist_videos WHERE playlistId = ? AND videoId = ?);", [playlistId, videoId, playlistId, videoId], (err, results) => {
+                                   if (err) reject(err);
+
+                                   resolve(results);
+                            });
+                     }));
+              }
+              await Promise.all(addPromises);
+
+              const removeVideoObj = data["remove"] || {videoIds: []};
+              const removePromises = [];
+              playlistId = removeVideoObj.playlistId || -1;
+
+              for (const videoId of removeVideoObj.videoIds) {
+                     removePromises.push(new Promise((resolve, reject) => {
+                            db.query("DELETE FROM playlist_videos WHERE playlistId = ? AND videoId = ?;", [playlistId, videoId], (err, results) => {
+                                   if (err) reject(err);
+
+                                   resolve(results);
+                            });
+                     }));
+              }
+              await Promise.all(removePromises);
+
+              res.status(200).send("Process completed");
+       }
+       catch (err) {
+              next(err);
+       }
+});
+
+app.get('*', (req, res) => {
+       res.sendFile(path.join(__dirname, 'ProjectFiles', 'index.html'));
 });
 
 app.use((err, req, res, next) => {

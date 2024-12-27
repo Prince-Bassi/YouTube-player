@@ -15,6 +15,8 @@ const useVideoManagerStore = create((set) => ({
                             for (const videoData of data) {
                                    updatedVideosData[videoData.id] = videoData;
                             }
+
+                            console.log("In updateVideosData", updatedVideosData);
                             return ({videosData: updatedVideosData});
                      });
               }
@@ -24,6 +26,11 @@ const useVideoManagerStore = create((set) => ({
        },
 
        displayVideo: async (id) => {
+              if (!id) {
+                     console.log("Invalid videoId for displaying");
+                     return;
+              }
+
               if (typeof id === "string") id = +id;
 
               try {
@@ -36,7 +43,7 @@ const useVideoManagerStore = create((set) => ({
                      const videoData = data[0];
        
                      if (!Object.keys(videoData).length) {
-                            set({title: "", playerHtml: ""}); //Default player (Not made yet)
+                            set({title: "default", playerHtml: "default"}); //Default player (Not made yet)
                             return;
                      }
                      set({title: videoData.title, playerHtml: videoData.html});

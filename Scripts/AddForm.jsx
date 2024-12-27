@@ -1,50 +1,91 @@
 import React, {useRef, useEffect} from "react";
 import useVideoManagerStore from "./hooks/VideoManagerStore.js";
+import usePlaylistStore from "./hooks/PlaylistStore.js";
 
-const AddForm = () => {
-       const addFormRef = useRef(null);
-       const submitButtonRef = useRef(null);
-       const updateVideosData = useVideoManagerStore((state) => state.updateVideosData);
+function handleVideoSubmit(addVideoFormRef, videoSubmitRef, updateVideosData) {
+       try {
+              const addVideoFormElem = addVideoFormRef.current;
+              const videoSubmitElem = videoSubmitRef.current;
 
-       useEffect(() => {
-              const addFormElem = addFormRef.current;
-              const submitButtonElem = submitButtonRef.current;
-
-              addFormElem.addEventListener("submit", (event) => {
+              addVideoFormElem.addEventListener("submit", async (event) => {
                      event.preventDefault();
-                     submitButtonElem.disabled = true;
-                     
-                     const formData = new FormData(addFormElem);
+                     videoSubmitElem.disabled = true;
+                                   
+                     const formData = new FormData(addVideoFormElem);
                      const videoId = formData.get("videoId");
 
                      if (!videoId) {
-                            submitButtonElem.disabled = false;
+                            videoSubmitElem.disabled = false;
                             return;
                      }
                      
-                     fetch("/addVideo", {
+                     const response = await fetch("/addVideo", {
                             method: "POST",
-                            headers: {
-                                   "Content-Type": "application/json"
-                            },
+                            headers: {"Content-Type": "application/json"},
                             body: JSON.stringify({videoId: videoId})
-                     })
-                     .then(response => response.text())
-                     .then(data => {
-                            console.log(data);
-                            updateVideosData();
-                            addFormElem.reset();
-                            submitButtonElem.disabled = false;
-                     })
-                     .catch(err => console.error(err));
+                     });
+
+                     const data = await response.text();
+                     console.log(data);
+
+                     updateVideosData();
+                     addVideoFormElem.reset();
+                     videoSubmitElem.disabled = false;
+              });
+       }
+       catch (err) {
+              console.error(err);
+       }
+}
+
+const AddForm = () => {
+       const addPlaylistFormRef = useRef(null);
+       const playlistSubmitRef = useRef(null);
+
+       const addVideoFormRef = useRef(null);
+       const videoSubmitRef = useRef(null);
+
+       const updateVideosData = useVideoManagerStore((state) => state.updateVideosData);
+       const addPlaylist = usePlaylistStore(state => state.addPlaylist);
+       const playlistIds = usePlaylistStore(state => state.playlistIds);
+
+       useEffect(() => {
+              handleVideoSubmit(addVideoFormRef, videoSubmitRef, updateVideosData);
+
+              //Playlist
+              const addPlaylistFormElem = addPlaylistFormRef.current;
+              const playlistSubmitElem = playlistSubmitRef.current;
+
+              addPlaylistFormElem.addEventListener("submit", async (event) => {
+                     event.preventDefault();
+                     playlistSubmitElem.disabled = true;
+                                   
+                     const formData = new FormData(addPlaylistFormElem);
+                     const playlistName = formData.get("playlistName");
+
+                     if (!playlistName) {
+                            playlistSubmitElem.disabled = false;
+                            return;
+                     }
+
+                     addPlaylist(playlistName);
+                     
+                     addPlaylistFormElem.reset();
+                     playlistSubmitElem.disabled = false;
               });
        }, []);
 
        return (
-              <form ref={addFormRef} className="addForm">
-                     <input type="text" placeholder="Video ID..." name="videoId" />
-                     <button ref={submitButtonRef} type="submit" className="submitButton">Add</button>
-              </form>
+              <>
+                     <form ref={addPlaylistFormRef}>
+                            <input type="text" placeholder="Playlist Name..." name="playlistName" />
+                            <button ref={playlistSubmitRef} type="submit">Add</button>
+                     </form>
+                     <form ref={addVideoFormRef} className="addForm">
+                            <input type="text" placeholder="Video ID..." name="videoId" />
+                            <button ref={videoSubmitRef} type="submit" className="submitButton">Add</button>
+                     </form>
+              </>
        );
 };
 

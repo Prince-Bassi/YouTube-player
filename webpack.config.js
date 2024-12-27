@@ -1,13 +1,11 @@
 require("dotenv").config();
 
-const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
        mode: process.env.NODE_ENV,
-       entry: ['webpack-hot-middleware/client', "./Scripts/script.jsx"],
+       entry: ["./Scripts/script.jsx"],
        output: {
               path: path.resolve(__dirname, "ProjectFiles"),
               filename: "bundle.js",
@@ -21,9 +19,6 @@ module.exports = {
                      use: {
                             loader: "babel-loader",
                             options: {
-                                   plugins: [
-                                          process.env.NODE_ENV === 'development' && require('react-refresh/babel')
-                                   ].filter(Boolean),
                                    cacheDirectory: true,
                             },
                      },
@@ -37,8 +32,6 @@ module.exports = {
               new HtmlWebpackPlugin({
                      template: './ProjectFiles/index.html',
               }),
-              new ReactRefreshWebpackPlugin(),
-              new webpack.HotModuleReplacementPlugin()
        ],
        devtool: 'cheap-module-source-map',
        devServer: {
