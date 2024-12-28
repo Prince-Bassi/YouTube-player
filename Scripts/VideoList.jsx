@@ -11,7 +11,7 @@ export const Video = ({id, title, clickFunc}) => {
        );
 };
  
-export const VideoList = ({currentPlaylist, videosData}) => {
+export const VideoList = ({currentPlaylist, videosData, options}) => {
        const deleteVideo = useVideoManagerStore(state => state.deleteVideo);
        const displayVideo = useVideoManagerStore(state => state.displayVideo);
        const playlistData = usePlaylistStore(state => state.playlistData);
@@ -19,7 +19,7 @@ export const VideoList = ({currentPlaylist, videosData}) => {
        const deleteFromPlaylist = usePlaylistStore(state => state.deleteFromPlaylist);
 
        useEffect(() => { //Default video is first one
-              if (videos && videos.length) displayVideo(videos[0]);
+              if (videos && videos.length && options.defaultPlay) displayVideo(videos[0]);
        }, [videos]);
 
        useEffect(() => {
@@ -31,11 +31,14 @@ export const VideoList = ({currentPlaylist, videosData}) => {
                      <div className="extraVidBody">
                             {videos && videos.map(id => (
                                    <div key={id}>
-                                          <Video id={id} title={videosData[id] && videosData[id].title} clickFunc={displayVideo} />
-                                          {currentPlaylist.playlistId === -1 && 
+                                          <Video id={id} title={videosData[id] && videosData[id].title} clickFunc={(id) => {
+                                                 displayVideo(id);
+                                                 if (options.setShowList) options.setShowList(false);
+                                          }} />
+                                          {options.includeDeleteButtons && (currentPlaylist.playlistId === -1 && 
                                                  <button onClick={() => deleteVideo(id)}>Delete</button> ||
-                                                 <button onClick={() => deleteFromPlaylist([currentPlaylist.playlistId], id)}>Delete</button>
-                                          }
+                                                 <button onClick={() => deleteFromPlaylist(currentPlaylist.playlistId, [id])}>Delete</button>
+                                          )}
                                    </div>
                             ))}
                      </div>

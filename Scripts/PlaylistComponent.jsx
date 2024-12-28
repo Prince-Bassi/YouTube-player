@@ -74,7 +74,7 @@ const PlaylistComponent = () => {
                   		<button onClick={() => setSelectFormVisible(true)}><i className="fa fa-plus"></i></button>
                   	</>}
 	           	</div>
-			<VideoList currentPlaylist={currentPlaylist} videosData={videosData} />
+			<VideoList currentPlaylist={currentPlaylist} videosData={videosData} options={{includeDeleteButtons: true, defaultPlay: true}} />
 		</aside>
 	);
 };
