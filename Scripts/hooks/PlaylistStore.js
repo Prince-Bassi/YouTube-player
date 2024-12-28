@@ -135,15 +135,15 @@ const usePlaylistStore = create((set, get) => ({
 		}
 	},
 
-	deleteFromPlaylist: async (playlistIds, videoId) => {
+	deleteFromPlaylist: async (playlistId, videoIds) => {
 		try {
-			if (!confirm(`Delete Video: ${videoId} from Playlist?`)) return;//Just for development
-			playlistIds = playlistIds.map(id => +id);
-			videoId = +videoId;
+			if (!confirm(`Delete Videos from Playlist?`)) return;//Just for development
+			playlistId = +playlistId;
+			videoIds = videoIds.map(id => +id);
 
 			const state = get();
-			playlistIds = playlistIds.filter(id => state.playlistData[id] && state.playlistData[id].videos.includes(videoId));
-			if (!playlistIds.length) {
+			videoIds = videoIds.filter(id => state.playlistData[playlistId] && state.playlistData[playlistId].videos.includes(id));
+			if (!videoIds.length) {
 				console.log("Videos not in playlist");
 				return;
 			}
@@ -151,7 +151,7 @@ const usePlaylistStore = create((set, get) => ({
 			const response = await fetch("/updatePlaylist", {
 				method: "PATCH",
 				headers: {"Content-Type": "application/json"},
-				body: JSON.stringify({"remove": {playlistIds: playlistIds, videoId: videoId}})
+				body: JSON.stringify({"remove": {playlistId: playlistId, videoIds: videoIds}})
 			});
 
 			const data = await response.text();
@@ -161,9 +161,9 @@ const usePlaylistStore = create((set, get) => ({
 				set((state) => {
 					const updatedPlaylistData = {...state.playlistData};
 
-					for (const id of playlistIds) {
-						if (!updatedPlaylistData[id].videos.includes(videoId)) continue;
-						updatedPlaylistData[id].videos = updatedPlaylistData[id].videos.filter(vId => vId !== videoId);
+					for (const id of videoIds) {
+						if (!updatedPlaylistData[playlistId].videos.includes(id)) continue;
+						updatedPlaylistData[playlistId].videos = updatedPlaylistData[playlistId].videos.filter(vId => vId !== id);
 					}
 
 					console.log("In deleteFromPlaylist", updatedPlaylistData);
