@@ -1,0 +1,43 @@
+.popUp {
+	position: absolute;
+	left: 50%;
+	top: 40%;
+	transform: translate(-50%, -50%);
+
+	padding: 20px;
+	border-radius: 15px;
+	z-index: 1;
+	border: 1px solid black;
+	background: white;
+}
+
+.title {
+	margin-bottom: 15px;
+	font-size: 23px;
+}
+
+.buttonCont {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-evenly;
+	margin-top: 30px;
+}
+
+.buttonCont > * {
+	min-width: 70px;
+	padding: 8px 18px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.confirm {
+	background: red;
+	color: lightgray;
+	border: 1px solid lightgray;
+}
+
+.close {
+	background: gray;
+	color: white;
+	border: 1px solid black;
+}

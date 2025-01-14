@@ -23,10 +23,18 @@ module.exports = {
                             },
                      },
               },
+              {
+                     test: /\.(sa|sc|c)ss$/,
+                     use: [
+                            'style-loader', // Inject styles into DOM
+                            'css-loader',   // Translates CSS into CommonJS modules
+                            'sass-loader',  // Compiles Sass to CSS
+                     ],
+              },
               ],
        },
        resolve: {
-              extensions: ['.js', '.jsx'],
+              extensions: ['.js', '.jsx', ".scss"],
        },
        plugins: [
               new HtmlWebpackPlugin({
@@ -39,6 +47,6 @@ module.exports = {
               compress: true,
               hot: true,
               historyApiFallback: true,
-              port: 8080,
+              port: 3000,
        },
 };

@@ -1,8 +1,9 @@
 import React, {useState, useRef, useEffect} from "react";
-import {VideoList} from "./VideoList.jsx";
-import useVideoManagerStore from "./hooks/VideoManagerStore.js";
+import {VideoList} from "../VideoList/VideoList.jsx";
+import useVideoManagerStore from "../hooks/VideoManagerStore.js";
+import * as style from "./SearchComponent.module.scss";
 
-const SelectComponent = () => {
+const SearchComponent = () => {
 	const videosData = useVideoManagerStore(state => state.videosData);
 	const [allVideos, setAllVideos] = useState({});
 	const [searchResList, setSearchResList] = useState([]);
@@ -38,11 +39,28 @@ const SelectComponent = () => {
 	}, [searchResList]);
 
 	return (
-		<div ref={containerRef}>
-			<input type="text" placeholder="Search Videos..." value={query} onChange={(event) => setQuery(event.target.value)} onFocus={() => setShowList(true)} />
-			{showList && <VideoList currentPlaylist={allVideos} videosData={videosData} options={{includeDeleteButtons: false, setShowList: setShowList, defaultPlay: false}} />}
+		<div className={style.container} ref={containerRef}>
+			<input
+				className={style.input}
+				type="text"
+				placeholder="Search Videos..."
+				onChange={(event) => setQuery(event.target.value.toLowerCase())}
+				onFocus={() => setShowList(true)} />
+
+			{showList && 
+				<VideoList
+					_className={style.list}
+					currentPlaylist={allVideos}
+					videosData={videosData}
+					options={{
+						includeDeleteButtons: false,
+						setShowList: setShowList,
+						defaultPlay: false,
+						showCurr: false}}
+				/>
+			}
 		</div>
 	);
 };
 
-export default SelectComponent;
+export default SearchComponent;

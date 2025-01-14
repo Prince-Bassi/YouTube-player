@@ -4,6 +4,7 @@ const useVideoManagerStore = create((set) => ({
        title: "",
        playerHtml: "",
        videosData: {},
+       currentVideoId: -1,
 
        updateVideosData: async () => {
               try {
@@ -12,7 +13,8 @@ const useVideoManagerStore = create((set) => ({
                      
                      set((state) => {
                             const updatedVideosData = {...state.videosData};
-                            for (const videoData of data) {
+                            for (let videoData of data) {
+                                   videoData.thumbnails = JSON.parse(videoData.thumbnails);
                                    updatedVideosData[videoData.id] = videoData;
                             }
 
@@ -46,37 +48,42 @@ const useVideoManagerStore = create((set) => ({
                             set({title: "default", playerHtml: "default"}); //Default player (Not made yet)
                             return;
                      }
-                     set({title: videoData.title, playerHtml: videoData.html});
+                     set({title: videoData.title, playerHtml: videoData.html, currentVideoId: id});
               }
               catch (err) {
                      console.error(err);
               }
        },
 
-       deleteVideo: async (id) => {
-              if (typeof id === "string") id = +id;
+       deleteVideo: (id) => {
+              return new Promise(async (resolve, reject) => {
+                     if (!confirm("Delete video?")) return;
+                     if (typeof id === "string") id = +id;
 
-              try {
-                     const response = await fetch("/deleteVideo", {
-                            method: "DELETE",
-                            headers: {"Content-Type": "application/json"},
-                            body: JSON.stringify({id: id})
-                     });
-                     const data = await response.text();
-                     console.log(data);
-       
-                     if (data === `Deleted Video ${id}`) {
-                            set((state) => {
-                                   const updatedVideosData = structuredClone(state.videosData); //Make a deep copy because this is always annoying
-                                   delete updatedVideosData[`${id}`];
-       
-                                   return ({videosData: updatedVideosData});
-                            });                     
+                     try {
+                            const response = await fetch("/deleteVideo", {
+                                   method: "DELETE",
+                                   headers: {"Content-Type": "application/json"},
+                                   body: JSON.stringify({id: id})
+                            });
+                            const data = await response.text();
+                            console.log(data);
+              
+                            if (data === `Deleted Video ${id}`) {
+                                   set((state) => {
+                                          const updatedVideosData = structuredClone(state.videosData); //Make a deep copy because this is always annoying
+                                          delete updatedVideosData[`${id}`];
+              
+                                          return ({videosData: updatedVideosData});
+                                   });
+                                   resolve();
+                            }
                      }
-              }
-              catch (err) {
-                     console.error(err);
-              }
+                     catch (err) {
+                            reject();
+                            console.error(err);
+                     }
+              });
        }
 }));
 

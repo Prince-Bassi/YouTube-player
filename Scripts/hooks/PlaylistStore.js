@@ -1,5 +1,4 @@
 import {create} from "zustand";
-import useVideoManagerStore from "./VideoManagerStore.js";
 
 const usePlaylistStore = create((set, get) => ({
 	currentPlaylistId: -1,
@@ -37,30 +36,35 @@ const usePlaylistStore = create((set, get) => ({
 		}
 	},
 
-	addPlaylist: async (playlistName) => {
-		try {
-			const response = await fetch("/addPlaylist", {
-				method: "POST",
-				headers: {"Content-Type": "application/json"},
-				body: JSON.stringify({playlistName: playlistName})
-			});
-
-			const data = await response.json();
-			
-			if (data.playlistId) {
-				console.log(data.message);
-				set((state) => {
-					const updatedPlaylistData = {...state.playlistData};
-					updatedPlaylistData[data.playlistId] = {playlistName: playlistName, videos: []};
-
-					console.log("In addPlaylist", updatedPlaylistData);
-					return {playlistData: updatedPlaylistData};
+	addPlaylist: (playlistName) => {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response = await fetch("/addPlaylist", {
+					method: "POST",
+					headers: {"Content-Type": "application/json"},
+					body: JSON.stringify({playlistName: playlistName})
 				});
+
+				const data = await response.json();
+				
+				if (data.playlistId) {
+					console.log(data.message);
+					set((state) => {
+						const updatedPlaylistData = {...state.playlistData};
+						updatedPlaylistData[data.playlistId] = {playlistName: playlistName, videos: []};
+
+						console.log("In addPlaylist", updatedPlaylistData);
+						return {playlistData: updatedPlaylistData};
+					});
+
+					resolve();
+				}
 			}
-		}
-		catch (err) {
-			console.error(err);
-		}
+			catch (err) {
+				console.error(err);
+				reject();
+			}
+		});
 	},
 
 	deletePlaylist: async (playlistId) => {

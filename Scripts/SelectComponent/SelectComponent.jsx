@@ -1,12 +1,12 @@
 import React, {useState, useEffect, useRef} from "react";
-import useVideoManagerStore from "./hooks/VideoManagerStore.js";
-import usePlaylistStore from "./hooks/PlaylistStore.js";
+import useVideoManagerStore from "../hooks/VideoManagerStore.js";
+import usePlaylistStore from "../hooks/PlaylistStore.js";
 
 const Item = ({id, title}) => {
 	return (
 		<div>
 			<input type="checkbox" id={`selectCheck${id}`} name={id}/>
-			<label for={`selectCheck${id}`}>{title}</label>
+			<label htmlFor={`selectCheck${id}`}>{title}</label>
 		</div>
 	);
 };

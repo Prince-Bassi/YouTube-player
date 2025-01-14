@@ -21,13 +21,6 @@ const db = mysql.createConnection({
        // connectionLimit: process.env.DB_POOL_LIMIT,
 });
 
-// query = "DELETE FROM playlist_videos;";
-
-// db.query(query, (err, result) => {
-//        if (err) console.error(err);
-//        console.log(result);
-// });
-
 const youtube = google.youtube({
        version: 'v3',
        auth: process.env.API_KEY
@@ -97,9 +90,14 @@ app.post("/addVideo", async (req, res, next) => {
                      } 
 
                      const videoData = data.data.items[0];
-                     const params = [videoId, videoData.player.embedHtml, videoData.snippet.title];
+                     const sourceLink = videoData.player.embedHtml.match(/src="([^"]*)"/)[1];
+                     const thumbnails = {};
+                     for (const type in videoData.snippet.thumbnails) {
+                            thumbnails[type] = videoData.snippet.thumbnails[type].url;
+                     }
+                     const params = [videoId, sourceLink, videoData.snippet.title, JSON.stringify(thumbnails)];
                      
-                     db.query("INSERT INTO videos (videoId, html, title) VALUES (?, ?, ?);", params, (err, results) => {
+                     db.query("INSERT INTO videos (videoId, html, title, thumbnails) VALUES (?, ?, ?, ?);", params, (err, results) => {
                             if (err) next(err);
 
                             res.status(200).send("Video added");

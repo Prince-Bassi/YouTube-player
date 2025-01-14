@@ -1,0 +1,55 @@
+.options {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	position: relative;
+	border-radius: 100%;
+	width: 35px;
+	height: 35px;
+	cursor: pointer;
+	margin-right: 17px;
+	font-size: 18px;
+
+	transition: background 0.3s ease;
+}
+
+.options:hover {
+	background: rgba(60, 60, 60, 0.4);
+}
+
+.options.active {
+	background: rgba(75, 75, 75, 0.7);
+}
+
+.optionsMenu {
+	--fadeDuration: 0.3s;
+	
+	display: flex;
+	flex-flow: column nowrap;
+
+	position: absolute;
+	top: calc(100% - 5px);
+	left: calc(-200px + 50% - 5px);
+	z-index: 1;
+
+	border-radius: 15px;
+	overflow: hidden;
+}
+
+.optionsMenu button {
+	padding: 10px 15px;
+	width: 200px;
+	cursor: pointer;
+	border: none;
+	color: var(--white);
+	background: var(--gray);
+}
+
+.optionsMenu button:hover {
+	background: var(--lightgray);
+}
+
+.optionsMenu button:active {
+	background: var(--lightergray);
+}

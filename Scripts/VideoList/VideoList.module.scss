@@ -1,0 +1,61 @@
+.videoList {
+	height: 100%;
+	overflow: auto;
+}
+
+.videoCont {
+	display: grid;
+	grid-template-columns: 85% auto;
+	grid-template-rows: auto;
+	align-items: center;
+
+	background: var(--black);
+
+	padding: 8px 8px 8px 20px;
+	cursor: pointer;
+
+	transition: background 0.3s ease;
+}
+
+.videoCont:hover:not(.curr) {
+	background: var(--gray);
+}
+
+.video {
+	display: grid;
+	grid-template-columns: 20% auto;
+	grid-template-rows: auto;
+	grid-gap: 10px;
+}
+
+.curr {
+	background: var(--red);
+}
+
+.image {
+	width: 80px;
+	height: 50px;
+	border-radius: 6px;
+}
+
+.delete {
+	width: 37px;
+	height: 37px;
+	font-size: 18px;
+
+	border: none;
+	border-radius: 100%;
+	background: inherit;
+	color: var(--lightergray);
+
+	cursor: pointer;
+	transition: color 0.3s ease;
+}
+
+.curr .delete {
+	color: var(--white);
+}
+
+.delete:active {
+	background: var(--lightgray);
+}

@@ -1,0 +1,94 @@
+.container {
+	display: flex;
+	flex-flow: column nowrap;
+	border: 1px solid var(--lightgray);
+	border-radius: 15px;
+	overflow: hidden;
+	height: 85vh;
+}
+
+.header {
+	display: grid;
+	grid-template-columns: 7% auto 7%;
+	grid-template-rows: auto;
+	margin-bottom: 10px;
+	background: var(--gray);
+	height: 13%;
+}
+
+.info {
+	position: relative;
+	text-align: center;
+}
+
+.title {
+	font-size: 23px;
+}
+
+.pageNum {
+	position: absolute;
+	top: 3px;
+	right: 10px;
+	font-size: 13px;
+}
+
+.button {
+	--outButtonOffset: 5%;
+	--inButtonOffset: 17%;
+
+	position: absolute;
+	bottom: 5px;
+
+	width: 37px;
+	height: 37px;
+	font-size: 18px;
+
+	border: none;
+	border-radius: 100%;
+	background: inherit;
+	color: var(--white);
+
+	cursor: pointer;
+	transition: background 0.3s ease;
+}
+
+.button:hover {
+	background: var(--lightgray);
+}
+
+.loop {
+	left: var(--outButtonOffset);
+}
+
+.shuffle {
+	left: var(--inButtonOffset);
+}
+
+.delete {
+	right: var(--outButtonOffset);
+}
+
+.add {
+	right: var(--inButtonOffset);
+}
+
+.arrow {
+	background: inherit;
+	color: var(--white);
+	font-size: 20px;
+	border: none;
+	transition: background 0.3s ease;
+	cursor: pointer;
+}
+
+.arrow:disabled {
+	cursor: not-allowed;
+}
+
+.arrow:hover:not(:disabled) {
+	background: var(--lightgray);
+}
+
+.arrow:hover:active:not(:disabled) {
+	background: var(--lightergray);
+}
