@@ -5,11 +5,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
        mode: process.env.NODE_ENV,
-       entry: ["./Scripts/script.jsx"],
+       entry: path.resolve(__dirname, "Scripts/script.jsx"),
        output: {
               path: path.resolve(__dirname, "ProjectFiles"),
               filename: "bundle.js",
-              publicPath: '/',
+              publicPath: __dirname,
        },
        module: {
               rules: [
@@ -19,6 +19,7 @@ module.exports = {
                      use: {
                             loader: "babel-loader",
                             options: {
+                                   presets: ['@babel/preset-env', '@babel/preset-react'],
                                    cacheDirectory: true,
                             },
                      },
@@ -26,9 +27,9 @@ module.exports = {
               {
                      test: /\.(sa|sc|c)ss$/,
                      use: [
-                            'style-loader', // Inject styles into DOM
-                            'css-loader',   // Translates CSS into CommonJS modules
-                            'sass-loader',  // Compiles Sass to CSS
+                            'style-loader',
+                            'css-loader',
+                            'sass-loader',
                      ],
               },
               ],
@@ -38,7 +39,7 @@ module.exports = {
        },
        plugins: [
               new HtmlWebpackPlugin({
-                     template: './ProjectFiles/index.html',
+                     template: path.resolve(__dirname, 'ProjectFiles/index.html'),
               }),
        ],
        devtool: 'cheap-module-source-map',
@@ -47,6 +48,6 @@ module.exports = {
               compress: true,
               hot: true,
               historyApiFallback: true,
-              port: 3000,
+              port: process.argv[2],
        },
 };

@@ -1,15 +1,15 @@
 require("dotenv").config();
 
-const path = require('path');
-const express = require('express');
+const path = require("path");
+const express = require("express");
 const mysql = require("mysql");
 const { google } = require("googleapis");
-const webpack = require('webpack');
-const webpackConfig = require('./webpack.config.js');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
+const webpack = require("webpack");
+const webpackConfig = require("./webpack.config.js");
+const webpackDevMiddleware = require("webpack-dev-middleware");
+const webpackHotMiddleware = require("webpack-hot-middleware");
 
-const PORT = +process.env.PORT;
+const PORT = +process.argv[2];
 const app = express();
 const compiler = webpack(webpackConfig);
 
@@ -17,12 +17,12 @@ const db = mysql.createConnection({
        host: process.env.DB_HOST,
        user: process.env.DB_USER,
        password: process.env.DB_PASSWORD,
-       database: process.env.DB_NAME,
+       database: process.env.YOUTUBE_PLAYER_DB,
        // connectionLimit: process.env.DB_POOL_LIMIT,
 });
 
 const youtube = google.youtube({
-       version: 'v3',
+       version: "v3",
        auth: process.env.API_KEY
 });
 
@@ -46,7 +46,7 @@ async function getVideoFromDB(id) {
        });
 }
 
-app.use(express.static(path.join(__dirname, 'ProjectFiles')));
+app.use(express.static(path.join(__dirname, "ProjectFiles")));
 app.use(express.urlencoded({extended: true}))
 app.use(express.json());
 
@@ -143,7 +143,7 @@ app.post("/getPlaylistData", async (req, res, next) => {
                      query = "SELECT * FROM playlist_videos;";
                      break;
               case "fullPlaylistsData":
-                     query = "SELECT p.id AS playlistId, p.name as playlistName, JSON_ARRAYAGG(v.id) AS videos FROM playlists p LEFT JOIN playlist_videos pv ON p.id = pv.playlistId LEFT JOIN videos v ON pv.videoId = v.id GROUP BY p.id";
+                     query = "SELECT p.id AS playlistId, p.name as playlistName, JSON_ARRAYAGG(v.id) AS videos FROM playlists p LEFT JOIN playlist_videos pv ON p.id = pv.playlistId LEFT JOIN videos v ON pv.videoId = v.id GROUP BY p.id;";
                      break;
               default:
                      next(new Error("Invaid request type"));
@@ -214,8 +214,8 @@ app.patch("/updatePlaylist", async (req, res, next) => {
        }
 });
 
-app.get('*', (req, res) => {
-       res.sendFile(path.join(__dirname, 'ProjectFiles', 'index.html'));
+app.get("*", (req, res) => {
+       res.sendFile(path.join(__dirname, "ProjectFiles", "index.html"));
 });
 
 app.use((err, req, res, next) => {

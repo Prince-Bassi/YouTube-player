@@ -14,7 +14,6 @@ The UI design is really just non-existent because I have wanted to first set up 
 1. Search results from the youtube API to avoid adding videos from their ids.
 2. Sorting playlists and videos in those respective playlists.
 3. Experimenting with OAuth and potentially adding some feature related to user data.
-4. Designing with modern CSS techniques and tools.
 
 Thats really about it. This is my second project and I hope you will share your opinion about my code quality and anything I can improve.
 
