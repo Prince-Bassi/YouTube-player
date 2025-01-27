@@ -6,4 +6,4 @@ id     videoId       html     title
 
 >>> Playlists:
 
-id INT	name		data (JSON) TEXT 		'FUTURE IDEA: have a column for the order of the playlists'
+id INT	name		'FUTURE IDEA: have a column for the order of the playlists'

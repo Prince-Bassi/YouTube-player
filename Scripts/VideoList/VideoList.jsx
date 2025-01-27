@@ -24,9 +24,11 @@ export const VideoList = ({_className, currentPlaylist, videosData, options}) =>
        const deleteFromPlaylist = usePlaylistStore(state => state.deleteFromPlaylist);
        const updatePlaylistData = usePlaylistStore(state => state.updatePlaylistData);
        const setLoopMode = usePlaylistStore(state => state.setLoopMode);
+       const toggleShuffle = usePlaylistStore(state => state.toggleShuffle);
 
        const [videos, setVideos] = useState([]);
-       const currentVideoIdRef = useRef(currentVideoId);
+       const currentVideoIdRef = useRef(null);
+       const videosRef = useRef(null);
 
        useEffect(() => {
               if (currentPlaylist?.videos) setVideos(currentPlaylist.videos.map(id => +id));
@@ -37,6 +39,7 @@ export const VideoList = ({_className, currentPlaylist, videosData, options}) =>
                      let id = sessionStorage.getItem("videoId");
                      displayVideo(id || videos[0]);
                      setLoopMode(null);
+                     toggleShuffle(false);
                      sessionStorage.removeItem("videoId");
               }
        }, [videos]);
@@ -46,8 +49,16 @@ export const VideoList = ({_className, currentPlaylist, videosData, options}) =>
               updatePlaylistData();
        };
 
+       useEffect(() => {
+              currentVideoIdRef.current = currentVideoId;
+       }, [currentVideoId]);
+
+       useEffect(() => {
+              videosRef.current = videos;
+       }, [videos]);
+
        const setSessionVideoId = (event) => {
-              sessionStorage.setItem("videoId", currentVideoId);
+              sessionStorage.setItem("videoId", currentVideoIdRef.current);
        };
 
        useEffect(() => {
@@ -59,20 +70,27 @@ export const VideoList = ({_className, currentPlaylist, videosData, options}) =>
 
        const checkNextVid = (event) => {
               const loopMode = usePlaylistStore.getState().loopProps[0];
-              if (event.data === window.YT.PlayerState.ENDED && loopMode !== "video") {
-                     if (videos.at(-1) === currentVideoIdRef.current && loopMode === "playlist") {
-                            displayVideo(videos[0]);
-                     }
-                     else if (videos.at(-1) !== currentVideoIdRef.current) {
-                            const nextIndex = videos.indexOf(currentVideoIdRef.current) + 1;
-                            displayVideo(videos[nextIndex]);
-                     }
-              }               
-       };
+              if (loopMode === "video" || event.data !== window.YT.PlayerState.ENDED) return;
 
-       useEffect(() => {
-              currentVideoIdRef.current = currentVideoId;
-       }, [currentVideoId]);
+              const shuffle = usePlaylistStore.getState().shuffle;
+              const videos = videosRef.current;
+              const currentVideoId = currentVideoIdRef.current;
+
+              if (shuffle) {
+                     const filteredVideos = videos.filter(id => id !== currentVideoId);
+                     const rIndex = Math.floor(Math.random() * filteredVideos.length);
+                     displayVideo(filteredVideos[rIndex]);
+              }
+              else if (videos.at(-1) === currentVideoId && loopMode === "playlist") { //Loop start
+                     //Second arg is repeating if there is only one video
+                     displayVideo(videos[0], videos[0] === videos.at(-1) ? true : false);
+              }
+              else if (videos.at(-1) !== currentVideoId) { //Next video in order
+                     const nextIndex = videos.indexOf(currentVideoId) + 1;
+                     displayVideo(videos[nextIndex]);
+              }
+                
+       };
 
        useEffect(() => {
               if (player) player.addEventListener("onStateChange", checkNextVid);
@@ -93,6 +111,7 @@ export const VideoList = ({_className, currentPlaylist, videosData, options}) =>
                                           clickFunc={(id) => {
                                                  displayVideo(id);
                                                  setLoopMode(null);
+                                                 toggleShuffle(false);
                                                  if (options.setShowList) options.setShowList(false);
                                           }}
                                    />

@@ -25,6 +25,9 @@ const PlaylistComponent = () => {
 	const loopProps = usePlaylistStore(state => state.loopProps);
 	const setLoopMode = usePlaylistStore(state => state.setLoopMode);
 
+	const shuffle = usePlaylistStore(state => state.shuffle);
+	const toggleShuffle = usePlaylistStore(state => state.toggleShuffle);
+
 	useEffect(() => {
 		updateVideosData();
 		updatePlaylistData();
@@ -65,7 +68,9 @@ const PlaylistComponent = () => {
 		};
 	}, [currentPlaylistId]);
 
-	const loop = () => {
+	const enableLoop = () => {
+		if (shuffle) toggleShuffle();
+
 		switch (loopProps[0]) {
 			case null:
 				setLoopMode("playlist");
@@ -109,13 +114,14 @@ const PlaylistComponent = () => {
 
 						<button
 							title="Loop"
-							onClick={loop}
+							onClick={enableLoop}
 							className={`${style.loop} ${style[loopProps[1]]} ${style.button}`}>
 							<i className="fa fa-repeat"></i>
 						</button>
 						<button
 							title="Shuffle"
-							className={`${style.shuffle} ${style.button}`}>
+							onClick={() => toggleShuffle()}
+							className={`${style.shuffle} ${shuffle ? style.active : ""} ${style.button}`}>
 							<i className="fa fa-random"></i>
 						</button>
 

@@ -1,6 +1,6 @@
 import {create} from "zustand";
 
-const useVideoManagerStore = create((set) => ({
+const useVideoManagerStore = create((set, get) => ({
        title: "",
        currentVideo: "",
        videosData: {},
@@ -38,7 +38,6 @@ const useVideoManagerStore = create((set) => ({
                      set((state) => {
                             const updatedVideosData = {...state.videosData};
                             for (let videoData of data) {
-                                   videoData.thumbnails = JSON.parse(videoData.thumbnails);
                                    updatedVideosData[videoData.id] = videoData;
                             }
 
@@ -51,13 +50,16 @@ const useVideoManagerStore = create((set) => ({
               }
        },
 
-       displayVideo: async (id) => {
+       displayVideo: async (id, repeat) => {
               if (!id || id == -1) {
                      console.log("Invalid videoId for displaying. Id:", id);
                      return;
               }
               
               if (typeof id === "string") id = +id;
+
+              const state = get();
+              if (repeat) state.player.loadVideoById(state.currentVideo);
 
               try {
                      const response = await fetch("/getVideo", {

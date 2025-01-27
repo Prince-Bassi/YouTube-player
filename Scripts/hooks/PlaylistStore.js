@@ -4,6 +4,14 @@ const usePlaylistStore = create((set, get) => ({
 	currentPlaylistId: -1,
 	playlistData: {},
 	loopProps: [null, ""],
+	shuffle: false,
+
+	toggleShuffle: (val) => set(state => {
+		const updatedVal = val === undefined ? !state.shuffle : val;
+
+		if (state.loopProps[0]) return {shuffle: updatedVal, loopProps: [null, ""]};
+		else return {shuffle: updatedVal};
+	}),
 
       setLoopMode: (mode) => {
       	set(state => {
@@ -13,7 +21,7 @@ const usePlaylistStore = create((set, get) => ({
       				style = "loopVideo";
       				break;
       			case "playlist":
-      				style = "loopPlaylist";
+      				style = "active";
       		}
       		return {loopProps: [mode, style]};
       	});
@@ -32,13 +40,14 @@ const usePlaylistStore = create((set, get) => ({
 
 			set((state) => {
 				const updatedPlaylistData = {...state.playlistData};
-				for (const i of data) {
-					let videos = JSON.parse(i.videos);
-					if (videos.includes(null)) {
-						videos = videos.filter(elem => elem !== null);
-					}
+				for (const playlist of data) {
+					let videos = playlist.videos.filter(elem => elem !== null);
 
-					updatedPlaylistData[i.playlistId] = {playlistId: i.playlistId, playlistName: i.playlistName, videos: videos};
+					updatedPlaylistData[playlist.playlistId] = {
+						playlistId: playlist.playlistId,
+						playlistName: playlist.playlistName,
+						videos: videos
+					};
 				}
 				console.log("In updatePlaylistData", updatedPlaylistData);
 

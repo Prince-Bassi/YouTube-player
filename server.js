@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const path = require("path");
 const express = require("express");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const { google } = require("googleapis");
 const webpack = require("webpack");
 const webpackConfig = require("./webpack.config.js");
@@ -18,6 +18,7 @@ const db = mysql.createConnection({
        user: process.env.DB_USER,
        password: process.env.DB_PASSWORD,
        database: process.env.YOUTUBE_PLAYER_DB,
+       connectTimeout: 10000,
        // connectionLimit: process.env.DB_POOL_LIMIT,
 });
 
@@ -90,14 +91,13 @@ app.post("/addVideo", async (req, res, next) => {
                      } 
 
                      const videoData = data.data.items[0];
-                     const sourceLink = videoData.player.embedHtml.match(/src="([^"]*)"/)[1];
                      const thumbnails = {};
                      for (const type in videoData.snippet.thumbnails) {
                             thumbnails[type] = videoData.snippet.thumbnails[type].url;
                      }
-                     const params = [videoId, sourceLink, videoData.snippet.title, JSON.stringify(thumbnails)];
+                     const params = [videoId, videoData.snippet.title, JSON.stringify(thumbnails)];
                      
-                     db.query("INSERT INTO videos (videoId, html, title, thumbnails) VALUES (?, ?, ?, ?);", params, (err, results) => {
+                     db.query("INSERT INTO videos (videoId, title, thumbnails) VALUES (?, ?, ?);", params, (err, results) => {
                             if (err) next(err);
 
                             res.status(200).send("Video added");
