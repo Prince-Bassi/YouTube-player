@@ -3,6 +3,21 @@ import {create} from "zustand";
 const usePlaylistStore = create((set, get) => ({
 	currentPlaylistId: -1,
 	playlistData: {},
+	loopProps: [null, ""],
+
+      setLoopMode: (mode) => {
+      	set(state => {
+      		let style = "";
+      		switch (mode) {
+      			case "video":
+      				style = "loopVideo";
+      				break;
+      			case "playlist":
+      				style = "loopPlaylist";
+      		}
+      		return {loopProps: [mode, style]};
+      	});
+      },
 
 	updateCurrentPlaylist: (playlistId) => set({currentPlaylistId: playlistId}),
 

@@ -2,9 +2,33 @@ import {create} from "zustand";
 
 const useVideoManagerStore = create((set) => ({
        title: "",
-       playerHtml: "",
+       currentVideo: "",
        videosData: {},
        currentVideoId: -1,
+       player: null,
+
+       updatePlayer: (playerElem, onPlayerReady, onPlayerStateChange) => {
+              const loadScript = () => {
+                     const script = document.createElement("script");
+                     script.src = "https://www.youtube.com/iframe_api";
+                     script.async = true;
+                     document.body.appendChild(script);
+              };
+
+              loadScript();
+
+              window.onYouTubeIframeAPIReady = () => {
+                     const newPlayer = new window.YT.Player(playerElem, {
+                            height: "500",
+                            width: "500",
+                            events: {
+                                   onReady: onPlayerReady,
+                                   onStateChange: onPlayerStateChange
+                            }
+                     });
+                     set({player: newPlayer});
+              };
+       },
 
        updateVideosData: async () => {
               try {
@@ -28,11 +52,11 @@ const useVideoManagerStore = create((set) => ({
        },
 
        displayVideo: async (id) => {
-              if (!id) {
-                     console.log("Invalid videoId for displaying");
+              if (!id || id == -1) {
+                     console.log("Invalid videoId for displaying. Id:", id);
                      return;
               }
-
+              
               if (typeof id === "string") id = +id;
 
               try {
@@ -45,10 +69,10 @@ const useVideoManagerStore = create((set) => ({
                      const videoData = data[0];
        
                      if (!Object.keys(videoData).length) {
-                            set({title: "default", playerHtml: "default"}); //Default player (Not made yet)
+                            set({title: "default", currentVideo: "default"}); //Default player (Not made yet)
                             return;
                      }
-                     set({title: videoData.title, playerHtml: videoData.html, currentVideoId: id});
+                     set({title: videoData.title, currentVideo: videoData.videoId, currentVideoId: id});
               }
               catch (err) {
                      console.error(err);

@@ -8,6 +8,7 @@ import * as style from "./PlaylistComponent.module.scss";
 const PlaylistComponent = () => {
 	const videosData = useVideoManagerStore((state) => state.videosData);
 	const updateVideosData = useVideoManagerStore((state) => state.updateVideosData);
+	const displayVideo = useVideoManagerStore(state => state.displayVideo);
 
 	const playlistData = usePlaylistStore(state => state.playlistData);
 	const currentPlaylistId = usePlaylistStore((state) => state.currentPlaylistId);
@@ -20,6 +21,9 @@ const PlaylistComponent = () => {
       const [currentPlaylistIndex, setCurrentPlaylistIndex] = useState(0);
       const [currentPlaylist, setCurrentPlaylist] = useState({});
       const [selectFormVisible, setSelectFormVisible] = useState(false);
+
+	const loopProps = usePlaylistStore(state => state.loopProps);
+	const setLoopMode = usePlaylistStore(state => state.setLoopMode);
 
 	useEffect(() => {
 		updateVideosData();
@@ -60,6 +64,22 @@ const PlaylistComponent = () => {
 			window.removeEventListener("beforeunload", setSessionPlaylistId);
 		};
 	}, [currentPlaylistId]);
+
+	const loop = () => {
+		switch (loopProps[0]) {
+			case null:
+				setLoopMode("playlist");
+				break;
+			case "playlist":
+				setLoopMode("video");
+				break;
+			case "video":
+				setLoopMode(null);
+				break;
+			default:
+				setLoopMode(null);
+		}
+	};
       
 	return (
 		<>
@@ -89,7 +109,8 @@ const PlaylistComponent = () => {
 
 						<button
 							title="Loop"
-							className={`${style.loop} ${style.button}`}>
+							onClick={loop}
+							className={`${style.loop} ${style[loopProps[1]]} ${style.button}`}>
 							<i className="fa fa-repeat"></i>
 						</button>
 						<button

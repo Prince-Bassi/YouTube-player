@@ -52,12 +52,26 @@
 	transition: background 0.3s ease;
 }
 
-.button:hover {
-	background: var(--lightgray);
+.button:active {
+	background: var(--lightergray);
 }
 
 .loop {
 	left: var(--outButtonOffset);
+}
+
+.loopPlaylist, .loopVideo {
+	background: var(--lightgray);
+}
+
+.loopVideo::before {
+	content: "1";
+	position: absolute;
+	left: 50%;
+	top: 45%;
+	transform: translate(-50%, -50%);
+	font-size: 7px;
+	color: white;
 }
 
 .shuffle {
